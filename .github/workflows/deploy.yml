@@ -1,0 +1,38 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup SSH
+      uses: webfactory/ssh-agent@v0.5.4
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+    - name: SSH & Deploy
+      run: |
+        ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
+          cd devops-nodejs-app
+
+          echo "🔁 Stopping container..."
+          docker stop my-nodejs-app || true
+          docker rm my-nodejs-app || true
+
+          echo "📦 Pulling latest code..."
+          git pull origin main
+
+          echo "🐳 Rebuilding Docker image..."
+          docker build -t meet-nodejs-app .
+
+          echo "🚀 Running container..."
+          docker run -d -p 3000:3000 --name my-nodejs-app meet-nodejs-app
+        EOF

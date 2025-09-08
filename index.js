@@ -4,7 +4,7 @@ require('dotenv').config();
 const app = express();
 
 app.get('/', (req, res) => {
-  res.send('<h2>Hello from Meet Dhruv Node.js App!</h2>');
+  res.send('<h2>Hello everyone  from Meet Dhruv Node.js App!</h2>');
 });
 
 app.get('/health', (req, res) => {
